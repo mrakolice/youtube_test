@@ -1,0 +1,24 @@
+{
+  "register_valid": {
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "testpass123",
+    "first_name": "Test",
+    "last_name": "User"
+  },
+  "register_invalid_short_password": {
+    "username": "testuser2",
+    "email": "test2@example.com",
+    "password": "short",
+    "first_name": "Test",
+    "last_name": "User"
+  },
+  "login_valid": {
+    "username": "testuser",
+    "password": "testpass123"
+  },
+  "login_invalid": {
+    "username": "testuser",
+    "password": "wrongpassword"
+  }
+}
