@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Application settings for view service."""
     
-    database_url: str = "postgresql+asyncpg://youtube_user:youtube_password@localhost:5432/youtube_db?schema=views"
+    database_url: str = "postgresql+asyncpg://youtube_user:youtube_password@localhost:5432/youtube_db"
     redis_url: str = "redis://:redis_password@localhost:6379"
     jwt_secret_key: str = "your-super-secret-key-change-in-production"
     jwt_algorithm: str = "HS256"

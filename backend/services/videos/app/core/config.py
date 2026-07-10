@@ -5,7 +5,7 @@ from typing import Optional
 class Settings(BaseSettings):
     """Application settings for video service."""
     
-    database_url: str = "postgresql+asyncpg://youtube_user:youtube_password@localhost:5432/youtube_db?schema=videos"
+    database_url: str = "postgresql+asyncpg://youtube_user:youtube_password@localhost:5432/youtube_db"
     redis_url: str = "redis://:redis_password@localhost:6379"
     
     # JWT Configuration
