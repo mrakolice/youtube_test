@@ -1,0 +1,163 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: youtube_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-youtube_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-youtube_password}
+      POSTGRES_DB: ${POSTGRES_DB:-youtube_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-youtube_user}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: youtube_redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis_password}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: youtube_kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "29092:29092"
+    healthcheck:
+      test: kafka-broker-api-versions.sh --bootstrap-server localhost:9092
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: youtube_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  auth-service:
+    build:
+      context: ./backend/services/auth
+      dockerfile: Dockerfile
+    container_name: youtube_auth_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://youtube_user:youtube_password@postgres:5432/youtube_db?schema=auth
+      REDIS_URL: redis://:redis_password@redis:6379
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./backend/services/auth:/app
+
+  video-service:
+    build:
+      context: ./backend/services/videos
+      dockerfile: Dockerfile
+    container_name: youtube_video_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://youtube_user:youtube_password@postgres:5432/youtube_db?schema=videos
+      REDIS_URL: redis://:redis_password@redis:6379
+      KAFKA_BROKER: kafka:9092
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./backend/services/videos:/app
+      - video_uploads:/app/uploads
+
+  view-service:
+    build:
+      context: ./backend/services/views
+      dockerfile: Dockerfile
+    container_name: youtube_view_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://youtube_user:youtube_password@postgres:5432/youtube_db?schema=views
+      REDIS_URL: redis://:redis_password@redis:6379
+      KAFKA_BROKER: kafka:9092
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./backend/services/views:/app
+
+  like-service:
+    build:
+      context: ./backend/services/likes
+      dockerfile: Dockerfile
+    container_name: youtube_like_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://youtube_user:youtube_password@postgres:5432/youtube_db?schema=likes
+      REDIS_URL: redis://:redis_password@redis:6379
+      KAFKA_BROKER: kafka:9092
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./backend/services/likes:/app
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: youtube_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  redis_data:
+  video_uploads:
+
+networks:
+  default:
+    name: youtube_network
