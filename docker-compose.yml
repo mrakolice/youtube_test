@@ -60,6 +60,13 @@ services:
     build:
       context: ./backend/services/auth
       dockerfile: Dockerfile
+      # Matches the container's user to the host user that owns the bind
+      # mount below, so files created inside the container (.venv, egg-info,
+      # __pycache__, ...) aren't owned by root on the host. Override if your
+      # host UID/GID differ, e.g.: HOST_UID=$(id -u) HOST_GID=$(id -g) docker compose build
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
     container_name: youtube_auth_service
     depends_on:
       postgres:
@@ -74,11 +81,18 @@ services:
       - "8001:8001"
     volumes:
       - ./backend/services/auth:/app
+      # Keep the image's own dependency install isolated from the bind mount
+      # above (same trick as frontend's node_modules below).
+      - /app/.venv
+      - /app/youtube_auth_service.egg-info
 
   video-service:
     build:
       context: ./backend/services/videos
       dockerfile: Dockerfile
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
     container_name: youtube_video_service
     depends_on:
       postgres:
@@ -97,11 +111,16 @@ services:
     volumes:
       - ./backend/services/videos:/app
       - video_uploads:/app/uploads
+      - /app/.venv
+      - /app/youtube_video_service.egg-info
 
   view-service:
     build:
       context: ./backend/services/views
       dockerfile: Dockerfile
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
     container_name: youtube_view_service
     depends_on:
       postgres:
@@ -119,11 +138,16 @@ services:
       - "8003:8003"
     volumes:
       - ./backend/services/views:/app
+      - /app/.venv
+      - /app/youtube_view_service.egg-info
 
   like-service:
     build:
       context: ./backend/services/likes
       dockerfile: Dockerfile
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
     container_name: youtube_like_service
     depends_on:
       postgres:
@@ -141,6 +165,8 @@ services:
       - "8004:8004"
     volumes:
       - ./backend/services/likes:/app
+      - /app/.venv
+      - /app/youtube_like_service.egg-info
 
   frontend:
     build:
