@@ -8,12 +8,8 @@ COPY package.json pnpm-lock.yaml* ./
 
 RUN pnpm install
 
-RUN pnpm install --frozen-lockfile
-
 COPY . .
-
-RUN pnpm build
 
 EXPOSE 3000
 
-CMD ["pnpm", "dev", "--host", "0.0.0.0"]
+CMD ["pnpm", "dev"]

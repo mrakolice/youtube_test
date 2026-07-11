@@ -24,6 +24,7 @@
     "@vue/test-utils": "^2.4.1",
     "@testing-library/vue": "^8.0.1",
     "typescript": "^5.3.3",
-    "sass": "^1.69.5"
+    "sass": "^1.69.5",
+    "jsdom": "^22.1.0"
   }
 }
