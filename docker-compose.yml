@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-youtube_password}
       POSTGRES_DB: ${POSTGRES_DB:-youtube_db}
     ports:
-      - "5433:5432"
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -78,7 +78,7 @@ services:
       REDIS_URL: redis://:redis_password@redis:6379
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     ports:
-      - "8001:8001"
+      - "8001:8000"
     volumes:
       - ./backend/services/auth:/app
       # Keep the image's own dependency install isolated from the bind mount
@@ -107,7 +107,7 @@ services:
       KAFKA_BROKER: kafka:9092
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     ports:
-      - "8002:8002"
+      - "8002:8000"
     volumes:
       - ./backend/services/videos:/app
       - video_uploads:/app/uploads
@@ -135,7 +135,7 @@ services:
       KAFKA_BROKER: kafka:9092
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     ports:
-      - "8003:8003"
+      - "8003:8000"
     volumes:
       - ./backend/services/views:/app
       - /app/.venv
@@ -162,7 +162,7 @@ services:
       KAFKA_BROKER: kafka:9092
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     ports:
-      - "8004:8004"
+      - "8004:8000"
     volumes:
       - ./backend/services/likes:/app
       - /app/.venv

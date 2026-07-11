@@ -3,12 +3,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+import sqlalchemy as sa
 
 from app.api import requests as req
 from app.api import responses as res
 from app.core import config, security
 from app.db.session import get_db
-from app.models import user as user_model
+
+from app import models
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -21,10 +23,16 @@ async def register(
     """Register a new user."""
     # Check if user already exists
     existing_user = await session.execute(
-        "SELECT * FROM users WHERE email = :email OR username = :username",
-        {"email": registration_data.email, "username": registration_data.username},
+        sa.select(models.User).filter(
+            sa.or_(
+                models.User.email==registration_data.email,
+                models.User.username==registration_data.username,
+            )
+        )
     )
-    if existing_user.scalar():
+    existing_user = existing_user.scalar_one_or_none()
+
+    if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with this email or username already exists",
@@ -32,7 +40,7 @@ async def register(
     
     # Create new user
     hashed_password = security.get_password_hash(registration_data.password)
-    new_user = user_model.User(
+    new_user = models.User(
         username=registration_data.username,
         email=registration_data.email,
         hashed_password=hashed_password,
@@ -58,12 +66,8 @@ async def login(
 ) -> res.LoginResponse:
     """Authenticate user and return access token."""
     # Find user by username
-    result = await session.execute(
-        "SELECT * FROM users WHERE username = :username",
-        {"username": login_data.username},
-    )
-    user = result.scalar()
-    
+    user = await session.query(models.User).filter(models.User.username == login_data.username).one_or_none()
+
     if not user or not security.verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
