@@ -85,6 +85,7 @@ services:
       # above (same trick as frontend's node_modules below).
       - /app/.venv
       - /app/youtube_auth_service.egg-info
+      - ./backend/services/auth/logs:/app/logs
 
   video-service:
     build:
@@ -113,6 +114,7 @@ services:
       - video_uploads:/app/uploads
       - /app/.venv
       - /app/youtube_video_service.egg-info
+      - ./backend/services/videos/logs:/app/logs
 
   view-service:
     build:
@@ -140,6 +142,7 @@ services:
       - ./backend/services/views:/app
       - /app/.venv
       - /app/youtube_view_service.egg-info
+      - ./backend/services/views/logs:/app/logs
 
   like-service:
     build:
@@ -167,6 +170,7 @@ services:
       - ./backend/services/likes:/app
       - /app/.venv
       - /app/youtube_like_service.egg-info
+      - ./backend/services/likes/logs:/app/logs
 
   frontend:
     build:
