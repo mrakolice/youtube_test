@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "youtube-auth-service"
 version = "0.1.0"
 description = "Authentication service for YouTube clone"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.12"
 dependencies = [
     "fastapi==0.104.1",
     "uvicorn[standard]==0.24.0",
@@ -17,10 +17,16 @@ dependencies = [
     "pydantic-settings==2.1.0",
     "python-jose[cryptography]==3.3.0",
     "passlib[bcrypt]==1.7.4",
+    # passlib 1.7.4 reads bcrypt.__about__, removed in bcrypt 4.1+.
+    "bcrypt==4.0.1",
     "python-multipart==0.0.6",
-    "aioredis==2.0.1",
+    # aioredis is unmaintained and fails to import on Python 3.11+; it was
+    # merged into redis-py, whose asyncio client lives in redis.asyncio.
+    "redis==5.0.1",
     "aiokafka==0.10.0",
     "pytest==7.4.3",
+    # tests/conftest.py runs against sqlite+aiosqlite:///:memory:
+    "aiosqlite==0.19.0",
     "pytest-asyncio==0.21.1",
     "pytest-xdist==3.5.0",
     "httpx==0.25.1",
