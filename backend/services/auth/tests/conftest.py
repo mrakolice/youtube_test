@@ -1,7 +1,6 @@
 import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.main import app
 from app.db.base import Base
@@ -34,9 +33,8 @@ async def test_db():
 @pytest.fixture
 async def async_session(test_db):
     """Create async session for tests."""
-    async_session_maker = sessionmaker(
+    async_session_maker = async_sessionmaker(
         test_db,
-        class_=AsyncSession,
         expire_on_commit=False,
     )
     
@@ -57,7 +55,9 @@ async def client(override_get_db):
     """Create test client."""
     app.dependency_overrides[get_db] = override_get_db
     
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    # httpx 0.28 dropped the app= shortcut in favour of an explicit transport.
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
     
     app.dependency_overrides.clear()

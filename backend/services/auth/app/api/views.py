@@ -66,7 +66,10 @@ async def login(
 ) -> res.LoginResponse:
     """Authenticate user and return access token."""
     # Find user by username
-    user = await session.query(models.User).filter(models.User.username == login_data.username).one_or_none()
+    result = await session.execute(
+        sa.select(models.User).filter(models.User.username == login_data.username)
+    )
+    user = result.scalar_one_or_none()
 
     if not user or not security.verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
@@ -111,10 +114,9 @@ async def get_current_user(
     
     user_id = int(token["sub"])
     result = await session.execute(
-        "SELECT * FROM users WHERE id = :id",
-        {"id": user_id},
+        sa.select(models.User).filter(models.User.id == user_id)
     )
-    user = result.scalar()
+    user = result.scalar_one_or_none()
     
     if not user:
         raise HTTPException(
@@ -149,10 +151,9 @@ async def update_current_user(
     
     user_id = int(token["sub"])
     result = await session.execute(
-        "SELECT * FROM users WHERE id = :id",
-        {"id": user_id},
+        sa.select(models.User).filter(models.User.id == user_id)
     )
-    user = result.scalar()
+    user = result.scalar_one_or_none()
     
     if not user:
         raise HTTPException(
