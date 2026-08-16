@@ -2,12 +2,11 @@ import subprocess
 from typing import AsyncGenerator, Callable
 
 import imageio_ffmpeg
+import jwt
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from jose import jwt
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 
 from app import models  # noqa: F401  (registers Video/VideoQuality on SQLModel.metadata)
@@ -18,10 +17,10 @@ from app.main import app as fastapi_app
 
 
 @pytest_asyncio.fixture
-async def db_session_factory() -> AsyncGenerator[sessionmaker, None]:
+async def db_session_factory() -> AsyncGenerator[async_sessionmaker[AsyncSession], None]:
     """An isolated in-memory SQLite database, fresh for every test."""
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", future=True)
-    session_factory = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)

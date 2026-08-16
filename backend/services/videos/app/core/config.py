@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
 
@@ -23,9 +23,10 @@ class Settings(BaseSettings):
     max_upload_size: int = 5 * 1024 * 1024 * 1024  # 5GB
     upload_dir: str = "uploads"
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+    )
 
 
 settings = Settings()

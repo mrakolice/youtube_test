@@ -7,29 +7,41 @@ name = "youtube-video-service"
 version = "0.1.0"
 description = "Video service for YouTube clone"
 requires-python = ">=3.11"
+# Lower bounds only: every pin here must keep resolving on the newest CPython,
+# so the exact versions live in uv.lock rather than in this file.
 dependencies = [
-    "fastapi==0.104.1",
-    "uvicorn[standard]==0.24.0",
-    "sqlmodel==0.0.14",
-    "alembic==1.12.1",
-    "asyncpg==0.29.0",
-    "pydantic==2.5.0",
-    "pydantic-settings==2.1.0",
-    "python-jose[cryptography]==3.3.0",
-    "python-multipart==0.0.6",
-    "aioredis==2.0.1",
-    "aiokafka==0.10.0",
-    "pytest==7.4.3",
-    "pytest-asyncio==0.21.1",
-    "pytest-xdist==3.5.0",
-    "httpx==0.25.1",
-    "moviepy==1.0.3",
-    "aiofiles==23.2.1",
-    "aiosqlite==0.19.0",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "sqlmodel>=0.0.22",
+    "alembic>=1.14",
+    "asyncpg>=0.30",
+    "pydantic>=2.10",
+    "pydantic-settings>=2.7",
+    # PyJWT replaces python-jose, which is unmaintained and pins an ancient
+    # pyasn1/rsa stack that conflicts with current cryptography releases.
+    "pyjwt[crypto]>=2.10",
+    "python-multipart>=0.0.20",
+    # aioredis was merged into redis-py; its asyncio client is redis.asyncio.
+    "redis>=5.2",
+    "aiokafka>=0.12",
+    "pytest>=8.3",
+    "pytest-asyncio>=0.25",
+    "pytest-xdist>=3.6",
+    "httpx>=0.28",
+    # moviepy 2.x dropped the moviepy.editor namespace; see _extract_duration.
+    "moviepy>=2.1",
+    # Imported directly by tests/conftest.py to render a sample mp4, so it is
+    # declared here rather than leaned on as a moviepy transitive dependency.
+    "imageio-ffmpeg>=0.5",
+    "aiofiles>=24.1",
+    "aiosqlite>=0.20",
 ]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+# Required from pytest-asyncio 0.25 on; without it every run warns and future
+# versions change the default.
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 python_files = "test_*.py"
 

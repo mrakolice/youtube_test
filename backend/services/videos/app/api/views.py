@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import uuid
-from datetime import datetime
 from pathlib import Path
 from typing import Annotated, Optional
 
@@ -58,7 +57,8 @@ async def _extract_duration(file_path: str) -> float:
     """Extract the video duration (in seconds) without blocking the event loop."""
 
     def _read_duration() -> float:
-        from moviepy.editor import VideoFileClip
+        # moviepy 2.x exposes VideoFileClip at the top level; moviepy.editor is gone.
+        from moviepy import VideoFileClip
 
         with VideoFileClip(file_path) as clip:
             return float(clip.duration)
@@ -99,7 +99,7 @@ async def _process_video(video_id: int, file_path: str) -> None:
 
         video.duration = duration
         video.is_processed = True
-        video.updated_at = datetime.utcnow()
+        video.updated_at = models.utcnow()
         session.add(
             models.VideoQuality(
                 video_id=video.id,

@@ -1,3 +1,3 @@
-from app.models.video import Video, VideoQuality
+from app.models.video import Video, VideoQuality, utcnow
 
-__all__ = ["Video", "VideoQuality"]
+__all__ = ["Video", "VideoQuality", "utcnow"]

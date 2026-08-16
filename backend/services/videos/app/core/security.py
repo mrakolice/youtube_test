@@ -1,7 +1,8 @@
 from typing import Optional
 
+import jwt
 from fastapi import Header, HTTPException, status
-from jose import JWTError, jwt
+from jwt import PyJWTError
 
 from app.core import config
 
@@ -15,7 +16,7 @@ def decode_token(token: str) -> dict:
             algorithms=[config.settings.jwt_algorithm],
         )
         return payload
-    except JWTError:
+    except PyJWTError:
         raise ValueError("Invalid token")
 
 
