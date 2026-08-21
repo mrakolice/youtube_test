@@ -6,13 +6,16 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "alembic>=1.19.1",
+    "asyncpg>=0.31.0",
     "fastapi>=0.141.1",
     "pydantic-settings>=2.15.0",
     "pylint>=4.0.7",
     "rich>=15.0.0",
     "ruff>=0.16.4",
+    "sqlalchemy-declarative-extensions>=0.16.10",
     "sqlmodel>=0.0.39",
     "structlog>=26.1.0",
+    "uvicorn>=0.52.4",
 ]
 [tool.ruff]
 line-length = 120

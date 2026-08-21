@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from app.core import config
 
 engine = create_async_engine(
-    config.settings.database_url,
+    config.config.postgres.database_url,
     echo=False,
     future=True,
 )

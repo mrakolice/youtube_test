@@ -5,11 +5,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.middleware import GatewayMiddleware
-from app.core.logging import setup_logging
+# from app.core.logging import setup_logging
 from app.db.base import Base
 from app.db.session import engine
 
-setup_logging()
+# setup_logging()
 
 
 @asynccontextmanager
