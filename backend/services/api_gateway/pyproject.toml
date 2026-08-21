@@ -1,0 +1,50 @@
+[project]
+name = "api-gateway"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "alembic>=1.19.1",
+    "fastapi>=0.141.1",
+    "pydantic-settings>=2.15.0",
+    "pylint>=4.0.7",
+    "rich>=15.0.0",
+    "ruff>=0.16.4",
+    "sqlmodel>=0.0.39",
+    "structlog>=26.1.0",
+]
+[tool.ruff]
+line-length = 120
+exclude = [
+    'app/database/env.py',
+    'app/database/versions/',
+    'app/database/models/__init__.py',
+    'app/core/hypervisors/tools/__init__.py',
+    'app/core/hypervisors/selfhosted/ovirt/__init__.py',
+    'app/core/hypervisors/selfhosted/vsphere/__init__.py',
+    'app/core/hypervisors/cloudinit/__init__.py',
+]
+
+[tool.ruff.format]
+quote-style = 'single'
+
+[tool.ruff.lint]
+select = ["E", "W", "C", "F", "N", 'I', 'PLR', 'UP']
+
+[tool.pylint]
+disable = 'all'
+load-plugins = ['pylint_google_style_guide_imports_enforcing']
+enable = 'C5101'
+ignore-paths = [
+    'app/database/env.py',
+    'app/database/versions/',
+    'app/database/models/__init__.py',
+    'app/core/hypervisors/tools/__init__.py',
+    'app/core/hypervisors/selfhosted/ovirt/__init__.py',
+    'app/core/hypervisors/selfhosted/vsphere/__init__.py',
+    'app/core/hypervisors/cloudinit/__init__.py',
+]
+
+[tool.ruff.lint.per-file-ignores]
+"app/tests/*" = ["PLR2004"]
