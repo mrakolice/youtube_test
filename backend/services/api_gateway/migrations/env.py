@@ -7,7 +7,7 @@ from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy_declarative_extensions import register_alembic_events
 
-# Add your model's MetaData object for 'autogenerate' support
+# Add your model's MetaData oject for 'autogenerate' support
 from app.db.base import Base
 
 # This is the Alembic Config object
